@@ -1,0 +1,11 @@
+{
+  "codeowners": ["@maxgeilert"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/maxgeilert/room_occupancy",
+  "domain": "room_occupancy",
+  "iot_class": "local_push",
+  "name": "Room Occupancy",
+  "requirements": [],
+  "version": "1.0.0"
+}
