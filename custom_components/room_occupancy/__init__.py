@@ -1,0 +1,1 @@
+"""Room Occupancy Binary Sensor"""
