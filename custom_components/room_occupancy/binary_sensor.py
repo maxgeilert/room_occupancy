@@ -38,19 +38,6 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .const import DOMAIN, PLATFORMS
 
-ATTR_OBSERVATIONS = "observations"
-# ATTR_OCCURRED_OBSERVATION_ENTITIES = "occurred_observation_entities"
-# ATTR_PROBABILITY = "probability"
-# ATTR_PROBABILITY_THRESHOLD = "probability_threshold"
-
-# CONF_OBSERVATIONS = "observations"
-# CONF_PRIOR = "prior"
-# CONF_TEMPLATE = "template"
-# CONF_PROBABILITY_THRESHOLD = "probability_threshold"
-# CONF_P_GIVEN_F = "prob_given_false"
-# CONF_P_GIVEN_T = "prob_given_true"
-# CONF_TO_STATE = "to_state"
-
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NAME = "Room Occupancy Sensor"
@@ -151,7 +138,7 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
         _LOGGER.debug("update triggered!")
         found = False
 
-        if self._state:
+        if self._state is "occupied":
             use_entities = (
                 self.attr[CONF_ENTITIES_TOGGLE] + self.attr[CONF_ENTITITES_KEEP]
             )
@@ -171,12 +158,11 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
                 found = True
             else:
                 _LOGGER.debug("entity is inactive!")
-            _LOGGER.debug("finished checking entities, _state is: %s" % self._state)
-
         if found:
-            self._state = True
+            self._state = "occupied"
+            #self.hass.state.set()
         else:
-            self._state = False
+            self._state = "not occupied"
         _LOGGER.debug("finished setting state, _state is: %s" % self._state)
         self.hass.states.set("room_occupancy." + self._name, self._state, self.attr)
 
