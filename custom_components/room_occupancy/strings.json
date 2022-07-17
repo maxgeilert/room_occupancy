@@ -1,0 +1,15 @@
+{
+  "step": {
+      "user": {
+        "data": {
+          "name": "Name of the sensor",
+          "roomname": "Name of the room",
+          "timeout": "Seconds until the sensor returns to off",
+          "entities_toggle": "Entities that are allowed to turn the sensor on",
+          "entities_keep": "Entities that are allowed to keep the sensor on",
+          "active_states": "States that are interpreted as true"
+        },
+        "title": "Room Occupancy",
+        "description": "Configure the room occupancy sensor"
+      }
+}
