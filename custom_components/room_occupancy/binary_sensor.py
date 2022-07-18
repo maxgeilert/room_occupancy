@@ -19,6 +19,7 @@ from homeassistant.const import (
     CONF_STATE,
     CONF_VALUE_TEMPLATE,
     STATE_OFF,
+    STATE_ON,
 )
 from homeassistant.core import HomeAssistant, State, callback
 from homeassistant.exceptions import ConditionError, TemplateError
@@ -76,21 +77,21 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 async def async_setup_entry(hass, entry, async_add_entities):
     """Add entity"""
-    # name = entry.get(CONF_NAME)
-    # timeout = entry.get(CONF_TIMEOUT)
-    # entities_toggle = entry.get(CONF_ENTITIES_TOGGLE)
-    # entities_keep = entry.get(CONF_ENTITIES_KEEP)
-    # active_states = entry.get(CONF_ACTIVE_STATES)
-
-    # _LOGGER.debug("async_setup_entry triggered!")
-    # _LOGGER.debug(
-    #     "name: %s, timeout %i, entities_toggle %s, entities_keep %s, active_states %s",
-    #     name,
-    #     timeout,
-    #     entities_toggle,
-    #     entities_keep,
-    #     active_states,
-    # )
+    _LOGGER.debug("binary_sensor.py async_setup_entry triggerd!")
+    data = entry.as_dict()["data"]
+    name = data[CONF_NAME]
+    timeout = data[CONF_TIMEOUT]
+    entities_toggle = data[CONF_ENTITIES_TOGGLE]
+    entities_keep = data[CONF_ENTITIES_KEEP]
+    active_states = data[CONF_ACTIVE_STATES]
+    _LOGGER.debug(
+        "name: %s, timeout %i, entities_toggle %s, entities_keep %s, active_states %s",
+        name,
+        timeout,
+        entities_toggle,
+        entities_keep,
+        active_states,
+    )
     async_add_entities(
         [
             RoomOccupancyBinarySensor(
@@ -103,16 +104,20 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 class RoomOccupancyBinarySensor(BinarySensorEntity):
     def __init__(self, hass, config):
+        _LOGGER.debug(
+            "binary_sensor.py __init__ triggered! config: %s" % config.as_dict()
+        )
+        data = config.as_dict()["data"]
+        _LOGGER.debug(data)
         self.hass = hass
         self.attr = {
-            CONF_TIMEOUT: config.get(CONF_TIMEOUT),
-            CONF_ENTITIES_TOGGLE: config.get(CONF_ENTITIES_TOGGLE),
-            CONF_ENTITIES_KEEP: config.get(CONF_ENTITIES_KEEP),
-            CONF_ACTIVE_STATES: config.get(CONF_ACTIVE_STATES),
+            CONF_TIMEOUT: data[CONF_TIMEOUT],
+            CONF_ENTITIES_TOGGLE: data[CONF_ENTITIES_TOGGLE],
+            CONF_ENTITIES_KEEP: data[CONF_ENTITIES_KEEP],
+            CONF_ACTIVE_STATES: data[CONF_ACTIVE_STATES],
         }
         self._state = STATE_OFF
-        self._name = config.get(CONF_NAME)
-        _LOGGER.debug("binary_sensor.py __init__ triggered!")
+        self._name = data[CONF_NAME]
         _LOGGER.debug(
             "name: %s, entities_toggle: %s, entities_keep: %s, timeout: %i, state: %s, active_states: %s",
             self._name,
@@ -123,7 +128,7 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
             self.attr[CONF_ACTIVE_STATES],
         )
 
-        eventHelper.track_state_change(
+        eventHelper.async_track_state_change(
             self.hass,
             self.attr[CONF_ENTITIES_TOGGLE] + self.attr[CONF_ENTITIES_KEEP],
             self.entity_state_changed,
@@ -143,10 +148,10 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
 
     def update(self):
         # if state is false, check all entities
-        _LOGGER.debug("update triggered!")
+        _LOGGER.debug("update triggered for %s!" % self.entity_id)
         found = False
 
-        if self._state == "occupied":
+        if self._state == STATE_ON:
             use_entities = (
                 self.attr[CONF_ENTITIES_TOGGLE] + self.attr[CONF_ENTITIES_KEEP]
             )
@@ -167,10 +172,10 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
             else:
                 _LOGGER.debug("entity is inactive!")
         if found:
-            self._state = "occupied"
+            self._state = STATE_ON
             # self.hass.state.set()
         else:
-            self._state = "not occupied"
+            self._state = STATE_OFF
         _LOGGER.debug("finished setting state, _state is: %s" % self._state)
         self.hass.states.set("room_occupancy." + self._name, self._state, self.attr)
 

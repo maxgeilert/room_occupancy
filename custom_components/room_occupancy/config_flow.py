@@ -10,11 +10,14 @@ from .const import *
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class RoomOccupancyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Example config flow."""
 
     async def async_step_user(self, user_input=None):
-        _LOGGER.debug("config_flow.py async_step_user triggered, user_input: %s" % user_input)
+        _LOGGER.debug(
+            "config_flow.py async_step_user triggered, user_input: %s" % user_input
+        )
         if user_input is not None:
             _LOGGER.debug("user_input is not none!")
             _LOGGER.debug(user_input)
@@ -26,7 +29,7 @@ class RoomOccupancyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def _show_setup_form(self, errors=None, step_id="user"):
         """Show the setup form to the user"""
         # get a list of entitys for interesting domains
-        for domain in ["sensor", "binary_sensor", "timer", "input_boolean", "media_player"]:
+        for domain in ["sensor", "binary_sensor", "timer", "input_boolean"]:
             all_entities = []
             all_entities = all_entities + [
                 entity for entity in self.hass.states.async_entity_ids(domain)
