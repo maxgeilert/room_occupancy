@@ -102,6 +102,23 @@ async def async_setup_entry(hass, entry, async_add_entities):
     )
 
 
+async def async_unload_entry(
+    hass: core.HomeAssistant, entry: config_entries.ConfigEntry
+) -> bool:
+    """Unload a config entry."""
+    _LOGGER.debug("binary_sensor.py async_unload_entry triggered!")
+    data = entry.as_dict()["data"]
+    _LOGGER.debug("entry_id is: %s" % data)
+    unload_ok = True
+    if unload_ok:
+        await self.hass.config_entries.async_forward_entry_unload(
+            entry, "binary_sensor"
+        )
+        hass.data[DOMAIN].pop(data["entry_id"])
+
+    return unload_ok
+
+
 class RoomOccupancyBinarySensor(BinarySensorEntity):
     def __init__(self, hass, config):
         _LOGGER.debug(
@@ -134,17 +151,9 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
             self.entity_state_changed,
         )
 
-    #     eventHelper.track_time_change(self.hass, self.time_changed)
-
     def entity_state_changed(self, entity_id, old_state, new_state):
-        _LOGGER.debug(
-            "entity_state_changed triggered! entity: %s, old_state: %s, new_state: %s"
-            % (entity_id, old_state, new_state)
-        )
+        _LOGGER.debug("entity_state_changed triggered! entity: %s" % (entity_id))
         self.update()
-
-    # def time_changed(self, time):
-    #    self.update()
 
     def update(self):
         # if state is false, check all entities
@@ -177,7 +186,7 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
         else:
             self._state = STATE_OFF
         _LOGGER.debug("finished setting state, _state is: %s" % self._state)
-        self.hass.states.set("room_occupancy." + self._name, self._state, self.attr)
+        self.hass.states.set("binary_sensor." + self._name, self._state, self.attr)
 
     @property
     def name(self):

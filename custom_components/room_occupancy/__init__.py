@@ -5,7 +5,7 @@ import logging
 from sqlalchemy import true
 
 import voluptuous as vol
-from homeassistant import config_entries
+from homeassistant import config_entries, core
 
 import homeassistant.helpers.event as eventHelper
 from homeassistant.components.binary_sensor import (
@@ -31,6 +31,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.template import result_as_boolean
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from .const import *
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,3 +70,18 @@ async def async_setup_entry(hass, entry):
         hass.config_entries.async_forward_entry_setup(entry, "binary_sensor")
     )
     return True
+
+
+async def async_unload_entry(
+    hass: core.HomeAssistant, entry: config_entries.ConfigEntry
+) -> bool:
+    """Unload a config entry."""
+    _LOGGER.debug("async_unload_entry triggered!")
+    data = entry.as_dict()["data"]
+    _LOGGER.debug("entry_id is: %s" % data)
+    unload_ok = True
+    if unload_ok:
+        await hass.config_entries.async_forward_entry_unload(entry, "binary_sensor")
+        # hass.data[DOMAIN].pop(data["entry_id"])
+
+    return unload_ok
