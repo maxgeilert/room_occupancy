@@ -47,7 +47,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Setup room occupancy entities"""
     name = config.get(CONF_NAME)
     timeout = config.get(CONF_TIMEOUT)
@@ -55,7 +55,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     entities_keep = config.get(CONF_ENTITIES_KEEP)
     active_states = config.get(CONF_ACTIVE_STATES)
 
-    _LOGGER.debug("setup_platform triggered!")
+    _LOGGER.debug("binary_sensor.py setup_platform triggered!")
     _LOGGER.debug(
         "name: %s, timeout %i, entities_toggle %s, entities_keep %s, active_states %s",
         name,
@@ -64,7 +64,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         entities_keep,
         active_states,
     )
-    add_entities(
+    await async_add_entities(
         [
             RoomOccupancyBinarySensor(
                 hass,
@@ -74,28 +74,28 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     )
 
 
-def setup_entry(hass, config_entry, add_entities):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Add entity"""
-    name = config_entry.get(CONF_NAME)
-    timeout = config_entry.get(CONF_TIMEOUT)
-    entities_toggle = config_entry.get(CONF_ENTITIES_TOGGLE)
-    entities_keep = config_entry.get(CONF_ENTITIES_KEEP)
-    active_states = config_entry.get(CONF_ACTIVE_STATES)
+    # name = entry.get(CONF_NAME)
+    # timeout = entry.get(CONF_TIMEOUT)
+    # entities_toggle = entry.get(CONF_ENTITIES_TOGGLE)
+    # entities_keep = entry.get(CONF_ENTITIES_KEEP)
+    # active_states = entry.get(CONF_ACTIVE_STATES)
 
-    _LOGGER.debug("setup_platform triggered!")
-    _LOGGER.debug(
-        "name: %s, timeout %i, entities_toggle %s, entities_keep %s, active_states %s",
-        name,
-        timeout,
-        entities_toggle,
-        entities_keep,
-        active_states,
-    )
-    add_entities(
+    # _LOGGER.debug("async_setup_entry triggered!")
+    # _LOGGER.debug(
+    #     "name: %s, timeout %i, entities_toggle %s, entities_keep %s, active_states %s",
+    #     name,
+    #     timeout,
+    #     entities_toggle,
+    #     entities_keep,
+    #     active_states,
+    # )
+    async_add_entities(
         [
             RoomOccupancyBinarySensor(
                 hass,
-                config_entry,
+                entry,
             )
         ]
     )
@@ -112,7 +112,7 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
         }
         self._state = STATE_OFF
         self._name = config.get(CONF_NAME)
-        _LOGGER.debug("__init__ triggered!")
+        _LOGGER.debug("binary_sensor.py __init__ triggered!")
         _LOGGER.debug(
             "name: %s, entities_toggle: %s, entities_keep: %s, timeout: %i, state: %s, active_states: %s",
             self._name,
@@ -146,7 +146,7 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
         _LOGGER.debug("update triggered!")
         found = False
 
-        if self._state is "occupied":
+        if self._state == "occupied":
             use_entities = (
                 self.attr[CONF_ENTITIES_TOGGLE] + self.attr[CONF_ENTITIES_KEEP]
             )
