@@ -9,7 +9,6 @@ import homeassistant.helpers.event as eventHelper
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
     PLATFORM_SCHEMA,
-    STATE_OFF,
     DEVICE_CLASS_OCCUPANCY,
 )
 from homeassistant.const import (
@@ -38,12 +37,11 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.string,
-        vol.Required(CONF_ROOMNAME, default=DEFAULT_ROOMNAME): cv.string,
         vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.positive_int,
         vol.Required(CONF_ENTITIES_TOGGLE, default=[]): cv.ensure_list,
         vol.Required(CONF_ENTITIES_KEEP, default=[]): cv.ensure_list,
         vol.Optional(
-            CONF_ACTIVE_STATES, default=["on", "occupied", 1, True, "active"]
+            CONF_ACTIVE_STATES, default='["on", "occupied", 1, True, "active"]'
         ): cv.ensure_list,
     }
 )
@@ -52,7 +50,6 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Setup room occupancy entities"""
     name = config.get(CONF_NAME)
-    roomname = config.get(CONF_ROOMNAME)
     timeout = config.get(CONF_TIMEOUT)
     entities_toggle = config.get(CONF_ENTITIES_TOGGLE)
     entities_keep = config.get(CONF_ENTITIES_KEEP)
@@ -60,9 +57,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     _LOGGER.debug("setup_platform triggered!")
     _LOGGER.debug(
-        "name: %s, roomname %s, timeout %i, entities_toggle %s, entities_keep %s, active_states %s",
+        "name: %s, timeout %i, entities_toggle %s, entities_keep %s, active_states %s",
         name,
-        roomname,
         timeout,
         entities_toggle,
         entities_keep,
@@ -78,11 +74,37 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     )
 
 
+def setup_entry(hass, config_entry, add_entities):
+    """Add entity"""
+    name = config_entry.get(CONF_NAME)
+    timeout = config_entry.get(CONF_TIMEOUT)
+    entities_toggle = config_entry.get(CONF_ENTITIES_TOGGLE)
+    entities_keep = config_entry.get(CONF_ENTITIES_KEEP)
+    active_states = config_entry.get(CONF_ACTIVE_STATES)
+
+    _LOGGER.debug("setup_platform triggered!")
+    _LOGGER.debug(
+        "name: %s, timeout %i, entities_toggle %s, entities_keep %s, active_states %s",
+        name,
+        timeout,
+        entities_toggle,
+        entities_keep,
+        active_states,
+    )
+    add_entities(
+        [
+            RoomOccupancyBinarySensor(
+                hass,
+                config_entry,
+            )
+        ]
+    )
+
+
 class RoomOccupancyBinarySensor(BinarySensorEntity):
     def __init__(self, hass, config):
         self.hass = hass
         self.attr = {
-            CONF_ROOMNAME: config.get(CONF_ROOMNAME),
             CONF_TIMEOUT: config.get(CONF_TIMEOUT),
             CONF_ENTITIES_TOGGLE: config.get(CONF_ENTITIES_TOGGLE),
             CONF_ENTITIES_KEEP: config.get(CONF_ENTITIES_KEEP),
@@ -92,9 +114,8 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
         self._name = config.get(CONF_NAME)
         _LOGGER.debug("__init__ triggered!")
         _LOGGER.debug(
-            "name: %s, roomname: %s, entities_toggle: %s, entities_keep: %s, timeout: %i, state: %s, active_states: %s",
+            "name: %s, entities_toggle: %s, entities_keep: %s, timeout: %i, state: %s, active_states: %s",
             self._name,
-            self.attr[CONF_ROOMNAME],
             self.attr[CONF_ENTITIES_TOGGLE],
             self.attr[CONF_ENTITIES_KEEP],
             self.attr[CONF_TIMEOUT],
