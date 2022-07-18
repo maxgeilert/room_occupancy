@@ -29,8 +29,8 @@ class RoomOccupancyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def _show_setup_form(self, errors=None, step_id="user"):
         """Show the setup form to the user"""
         # get a list of entitys for interesting domains
-        for domain in ["sensor", "binary_sensor", "timer", "input_boolean"]:
-            all_entities = []
+        all_entities = []
+        for domain in ["sensor", "binary_sensor", "timer", "input_boolean", "media_player"]:
             all_entities = all_entities + [
                 entity for entity in self.hass.states.async_entity_ids(domain)
             ]
