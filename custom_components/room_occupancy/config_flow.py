@@ -12,7 +12,6 @@ _LOGGER = logging.getLogger(__name__)
 
 SENSOR_SCHEMA = {
     vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Required(CONF_ROOMNAME, default=DEFAULT_ROOMNAME): cv.string,
     vol.Required(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.port,
     vol.Required(CONF_ENTITIES_TOGGLE, default=[]): cv.string,
     vol.Required(CONF_ENTITIES_KEEP, default=[]): cv.string,
@@ -54,7 +53,6 @@ class RoomOccupancyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.string,
-                    vol.Required(CONF_ROOMNAME, default=DEFAULT_ROOMNAME): cv.string,
                     vol.Required(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.port,
                     vol.Required(CONF_ENTITIES_TOGGLE, default=[]): cv.multi_select(
                         sorted(all_entities)
