@@ -1,45 +1,63 @@
-from homeassistant import config_entries
-from .const import DOMAIN
-import voluptuous as vol
+"""Config flow for Room Occupancy integration."""
+
+from __future__ import annotations
+
 import logging
+from typing import Any
+
+import voluptuous as vol
+
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_NAME
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from typing import Any, Dict, Optional
-from .const import *
+
+from .const import (
+    CONF_ACTIVE_STATES,
+    CONF_ENTITIES_KEEP,
+    CONF_ENTITIES_TOGGLE,
+    CONF_TIMEOUT,
+    DEFAULT_ACTIVE_STATES,
+    DEFAULT_NAME,
+    DEFAULT_TIMEOUT,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class RoomOccupancyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Example config flow."""
+class RoomOccupancyConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Room Occupancy."""
 
-    async def async_step_user(self, user_input=None):
-        _LOGGER.debug(
-            "config_flow.py async_step_user triggered, user_input: %s" % user_input
-        )
-        if user_input is not None:
-            _LOGGER.debug("user_input is not none!")
-            _LOGGER.debug(user_input)
-            return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
+    VERSION = 1
 
-        _LOGGER.debug("returning async_show_form!")
-        return await self._show_setup_form(None, "user")
-
-    async def _show_setup_form(self, errors=None, step_id="user"):
-        """Show the setup form to the user"""
-        # get a list of entitys for interesting domains
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle the initial step."""
         all_entities = []
-        for domain in ["sensor", "binary_sensor", "timer", "input_boolean", "media_player"]:
-            all_entities = all_entities + [
-                entity for entity in self.hass.states.async_entity_ids(domain)
-            ]
+        for domain in (
+            "sensor",
+            "binary_sensor",
+            "timer",
+            "input_boolean",
+            "media_player",
+        ):
+            all_entities += self.hass.states.async_entity_ids(domain)
+        _LOGGER.debug("all entities: %s", all_entities)
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            return self.async_create_entry(
+                title=user_input[CONF_NAME],
+                data=user_input,
+            )
         return self.async_show_form(
-            step_id=step_id,
+            step_id="user",
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.string,
-                    vol.Required(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.port,
+                    vol.Required(
+                        CONF_TIMEOUT, default=DEFAULT_TIMEOUT
+                    ): cv.positive_int,
                     vol.Required(CONF_ENTITIES_TOGGLE, default=[]): cv.multi_select(
                         sorted(all_entities)
                     ),
@@ -49,7 +67,7 @@ class RoomOccupancyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Optional(
                         CONF_ACTIVE_STATES, default=DEFAULT_ACTIVE_STATES
                     ): cv.string,
-                    vol.Optional("add_another"): cv.boolean,
                 }
             ),
+            errors=errors,
         )
