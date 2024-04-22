@@ -17,5 +17,24 @@
     "abort": {
       "already_configured": "This sensor already exists!"
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "name": "Name of the sensor",
+          "timeout": "Timeout in seconds",
+          "entities_toggle": "these entities can toggle the sensor to on",
+          "entities_keep": "these entitites can keep the sensor on",
+          "active_states": "states that are considered as true"
+        }
+      }
+    },
+    "error": {
+      "already_configured": "This sensor already exists!"
+    },
+    "abort": {
+      "already_configured": "This sensor already exists!"
+    }
   }
 }

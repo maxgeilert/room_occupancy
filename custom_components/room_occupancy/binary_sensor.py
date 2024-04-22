@@ -131,6 +131,11 @@ class RoomOccupancyBinarySensor(BinarySensorEntity):
                 found = True
         return found
 
+    async def update_listener(self, entry):
+        """Handle options update."""
+        _LOGGER.debug("update_listener triggered!")
+        _LOGGER.debug("entry: %s", entry.as_dict())
+
     @property
     def name(self) -> str:
         """Return the name of the sensor."""
